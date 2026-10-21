@@ -3,4 +3,10 @@
     <string name="text_po_kliknuti">Dnes byla zima (12 °C), ale jasné počasí.</string>
     <string name="uvodni_text">Michal Dolanský - MeteoDeník</string>
     <string name="akce_zmen_text">Zapsat dnešní počasí</string>
+
+    <string name="bmi_vyska">Výška (cm)</string>
+    <string name="bmi_vaha">Váha (kg)</string>
+    <string name="bmi_vypocitat">Vypočítat</string>
+    <string name="bmi_vysledek">BMI: %1$.1f</string>
+    <string name="bmi_error">Zadejte výšku i váhu jako kladná čísla.</string>
 </resources>

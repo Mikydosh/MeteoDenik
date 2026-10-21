@@ -29,7 +29,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             MeteoDenikTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MeteoObrazovka(modifier = Modifier.padding(innerPadding))
+                    Column(modifier = Modifier.padding(innerPadding)) {
+                        MeteoObrazovka()
+                        BmiObrazovka()
+                    }
                 }
             }
         }
