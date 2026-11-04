@@ -1,7 +1,9 @@
 package cz.utb.meteodenik.ui
 
 import android.content.Intent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import cz.utb.meteodenik.DetailMestaActivity
 import cz.utb.meteodenik.R
 import cz.utb.meteodenik.ZaznamUlozenReceiver
+import cz.utb.meteodenik.model.UKAZKOVA_MESTA
 
 @Composable
 fun SeznamMestObrazovka() {
@@ -26,20 +29,31 @@ fun SeznamMestObrazovka() {
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineSmall
             )
-            Button(onClick = {
-                val intent = Intent(context, DetailMestaActivity::class.java).apply {
-                    putExtra(DetailMestaActivity.EXTRA_MESTO, "Zlín")
-                    putExtra(DetailMestaActivity.EXTRA_TEPLOTA, 21.4)
+
+            // Cvičení 5.2: jeden klikatelný řádek pro každé město, do Intentu jdou data toho města
+            UKAZKOVA_MESTA.forEach { mesto ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            val intent = Intent(context, DetailMestaActivity::class.java).apply {
+                                putExtra(DetailMestaActivity.EXTRA_MESTO, mesto.nazev)
+                                putExtra(DetailMestaActivity.EXTRA_TEPLOTA, mesto.teplota)
+                            }
+                            context.startActivity(intent)
+                        }
+                        .padding(16.dp)
+                ) {
+                    Text(mesto.nazev)
+                    Text(stringResource(R.string.teplota_format, mesto.teplota))
                 }
-                context.startActivity(intent)
-            }) {
-                Text(stringResource(R.string.otevri_detail))
             }
+
             Button(onClick = {
                 context.sendBroadcast(
                     Intent(ZaznamUlozenReceiver.ACTION_ZAZNAM_ULOZEN).apply {
                         setPackage(context.packageName)
-                        putExtra(ZaznamUlozenReceiver.EXTRA_MESTO, "Zlín")
+                        putExtra(ZaznamUlozenReceiver.EXTRA_MESTO, UKAZKOVA_MESTA.first().nazev)
                     }
                 )
             }) {
