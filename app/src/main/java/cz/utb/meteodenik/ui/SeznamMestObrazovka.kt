@@ -1,6 +1,7 @@
 package cz.utb.meteodenik.ui
 
 import android.content.Intent
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -18,11 +19,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cz.utb.meteodenik.DetailMestaActivity
 import cz.utb.meteodenik.R
 import cz.utb.meteodenik.ZaznamUlozenReceiver
 import cz.utb.meteodenik.model.UKAZKOVA_MESTA
+import cz.utb.meteodenik.ui.theme.MeteoDenikTheme
 
 @Composable
 fun SeznamMestObrazovka() {
@@ -51,7 +54,7 @@ fun SeznamMestObrazovka() {
             UKAZKOVA_MESTA.forEach { mesto ->
                 Column(
                     modifier = Modifier
-                        .background(colorResource(R.color.pozadi_karty))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .fillMaxWidth()
                         .clickable {
                             val intent = Intent(context, DetailMestaActivity::class.java).apply {
@@ -62,8 +65,10 @@ fun SeznamMestObrazovka() {
                         }
                         .padding(16.dp)
                 ) {
-                    Text(mesto.nazev, color = colorResource(R.color.text_zvyrazneni))
-                    Text(stringResource(R.string.teplota_format, mesto.teplota))
+                    Text(mesto.nazev, color = MaterialTheme.colorScheme.primary)
+                    Text(stringResource(R.string.teplota_format, mesto.teplota),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
 
@@ -79,4 +84,11 @@ fun SeznamMestObrazovka() {
             }
         }
     }
+}
+
+@Preview(name = "Světlý", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(name = "Tmavý", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun SeznamMestPreview() {
+    MeteoDenikTheme { SeznamMestObrazovka() }
 }
