@@ -1,6 +1,7 @@
 package cz.utb.meteodenik.ui
 
 import android.content.Intent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -49,6 +51,7 @@ fun SeznamMestObrazovka() {
             UKAZKOVA_MESTA.forEach { mesto ->
                 Column(
                     modifier = Modifier
+                        .background(colorResource(R.color.pozadi_karty))
                         .fillMaxWidth()
                         .clickable {
                             val intent = Intent(context, DetailMestaActivity::class.java).apply {
@@ -59,7 +62,7 @@ fun SeznamMestObrazovka() {
                         }
                         .padding(16.dp)
                 ) {
-                    Text(mesto.nazev)
+                    Text(mesto.nazev, color = colorResource(R.color.text_zvyrazneni))
                     Text(stringResource(R.string.teplota_format, mesto.teplota))
                 }
             }
