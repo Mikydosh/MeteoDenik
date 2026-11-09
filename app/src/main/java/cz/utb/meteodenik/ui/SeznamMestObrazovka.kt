@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -12,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cz.utb.meteodenik.DetailMestaActivity
@@ -24,11 +27,23 @@ fun SeznamMestObrazovka() {
     val context = LocalContext.current          // Context pro startActivity – na začátku funkce
 
     Scaffold { insety ->
-        Column(modifier = Modifier.padding(insety).padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(insety)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
+            val pocet = UKAZKOVA_MESTA.size
             Text(
-                text = stringResource(R.string.app_name),
+                text = stringResource(
+                    R.string.seznam_titulek_pocet,
+                    // počet se předává dvakrát: pro výběr tvaru a jako parametr %1$d
+                    pluralStringResource(R.plurals.pocet_zaznamu, pocet, pocet)
+                ),
                 style = MaterialTheme.typography.headlineSmall
             )
+
+            PolohaKarta(modifier = Modifier.padding(vertical = 8.dp))
 
             // Cvičení 5.2: jeden klikatelný řádek pro každé město, do Intentu jdou data toho města
             UKAZKOVA_MESTA.forEach { mesto ->
