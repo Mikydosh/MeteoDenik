@@ -54,4 +54,6 @@
         <item quantity="one">%1$d city</item>
         <item quantity="other">%1$d cities</item>
     </plurals>
+    <string name="mesto_smazat">Delete</string>
+    <string name="mesto_teplota_pozdeji">We will add the temperature in lesson 11</string>
 </resources>

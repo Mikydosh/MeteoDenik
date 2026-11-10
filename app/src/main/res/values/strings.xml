@@ -58,4 +58,6 @@
         <item quantity="many">%1$d města</item>
         <item quantity="other">%1$d měst</item>
     </plurals>
+    <string name="mesto_smazat">Smazat</string>
+    <string name="mesto_teplota_pozdeji">Teplotu doplníme v lekci 11</string>
 </resources>
