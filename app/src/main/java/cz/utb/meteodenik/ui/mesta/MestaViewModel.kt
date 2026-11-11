@@ -53,8 +53,4 @@ class MestaViewModel(
     fun zrusChybu() {
         jeDuplikat.value = false
     }
-
-    override fun onCleared() {
-        super.onCleared()
-    }
 }
