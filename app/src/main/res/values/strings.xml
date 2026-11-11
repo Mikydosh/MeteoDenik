@@ -60,4 +60,5 @@
     </plurals>
     <string name="mesto_smazat">Smazat</string>
     <string name="mesto_teplota_pozdeji">Teplotu doplníme v lekci 11</string>
+    <string name="zpet">Zpět</string>
 </resources>
