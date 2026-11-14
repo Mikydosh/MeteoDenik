@@ -15,6 +15,6 @@ interface MeteoApi {
 
     companion object {
         const val VYCHOZI_PROMENNE =
-            "temperature_2m, relative_humidity_2m, weather_code, wind_speed_10m"
+            "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m"
     }
 }

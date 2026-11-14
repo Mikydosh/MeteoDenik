@@ -61,4 +61,20 @@
     <string name="mesto_smazat">Smazat</string>
     <string name="mesto_teplota_pozdeji">Teplotu doplníme v lekci 11</string>
     <string name="zpet">Zpět</string>
+
+    <string name="akce_obnovit">Obnovit</string>
+    <string name="teplota_a_popis">%1$.1f °C · %2$s</string>
+    <string name="detail_vlhkost">Vlhkost vzduchu: %1$d %%</string>
+    <string name="detail_vitr">Vítr: %1$.1f km/h</string>
+    <string name="detail_cas">Změřeno: %1$s</string>
+    <string name="stav_jasno">jasno</string>
+    <string name="stav_polojasno">polojasno</string>
+    <string name="stav_zatazeno">zataženo</string>
+    <string name="stav_mlha">mlha</string>
+    <string name="stav_mrholeni">mrholení</string>
+    <string name="stav_dest">déšť</string>
+    <string name="stav_snezeni">sněžení</string>
+    <string name="stav_prehanky">přeháňky</string>
+    <string name="stav_bourka">bouřka</string>
+    <string name="stav_neznamy">neznámé počasí</string>
 </resources>
