@@ -73,4 +73,13 @@
     <string name="stav_prehanky">showers</string>
     <string name="stav_bourka">thunderstorm</string>
     <string name="stav_neznamy">unknown conditions</string>
+
+    <string name="chyba_bez_pripojeni">You are not connected to the internet. Check Wi-Fi or mobile data.</string>
+    <string name="chyba_server_neodpovida">The server is not responding. Please try again in a moment.</string>
+    <string name="chyba_prilis_mnoho_dotazu">Request limit reached. Try again in a minute.</string>
+    <string name="chyba_pozadavku">The data could not be loaded. Try removing the city and adding it again.</string>
+    <string name="chyba_serveru">The data provider has a problem. Try again later.</string>
+    <string name="chyba_neplatna_odpoved">The server sent an unexpected response. If you are on public Wi-Fi, sign in to it.</string>
+    <string name="chyba_jina_site">The connection could not be completed.</string>
+    <string name="akce_zkusit_znovu">Try again</string>
 </resources>

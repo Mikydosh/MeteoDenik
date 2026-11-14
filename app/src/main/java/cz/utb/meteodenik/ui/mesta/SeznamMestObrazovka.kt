@@ -43,6 +43,7 @@ fun SeznamMestObrazovka(
     ) { insety ->
         SeznamMestObsah(
             stav = stav,
+            onZkusitZnovu = { viewModel.obnov(vynutit = true) },
             onMestoKliknuto = { id ->
                 viewModel.vyberMesto(id)
                 onMestoKliknuto(id)
