@@ -3,11 +3,7 @@ package cz.utb.meteodenik.ui.mesta
 import cz.utb.meteodenik.data.DuvodSelhani
 import cz.utb.meteodenik.model.MeteoZaznam
 import cz.utb.meteodenik.model.Mesto
-
-data class MestoSPocasim(
-    val mesto: Mesto,
-    val pocasi: MeteoZaznam? = null      // null = pro město ještě nemáme data
-)
+import cz.utb.meteodenik.model.MestoSPocasim
 
 data class MestaUiState(
     val mesta: List<MestoSPocasim> = emptyList(),

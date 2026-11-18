@@ -26,6 +26,7 @@ import cz.utb.meteodenik.model.MeteoZaznam
 import cz.utb.meteodenik.model.StavPocasi
 import cz.utb.meteodenik.ui.theme.MeteoDenikTheme
 import java.time.LocalDateTime
+import cz.utb.meteodenik.model.MestoSPocasim
 
 @Composable
 fun SeznamMestObsah(

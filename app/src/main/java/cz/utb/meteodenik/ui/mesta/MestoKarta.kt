@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cz.utb.meteodenik.R
 import cz.utb.meteodenik.ui.popis
+import cz.utb.meteodenik.model.MestoSPocasim
 
 @Composable
 fun MestoKarta(
