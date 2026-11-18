@@ -1,63 +1,52 @@
 package cz.utb.meteodenik.ui.mesta
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cz.utb.meteodenik.data.DuvodSelhani
-import cz.utb.meteodenik.data.MestaZdroj
 import cz.utb.meteodenik.data.MeteoRepository
-import cz.utb.meteodenik.data.Repozitare
-import cz.utb.meteodenik.data.VysledekSite
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import cz.utb.meteodenik.model.MestoSPocasim
-private const val KLIC_VYBRANE_MESTO = "vybraneMestoId"
+import javax.inject.Inject
 
-class MestaViewModel(
-    private val savedStateHandle: SavedStateHandle
+@HiltViewModel
+class MestaViewModel @Inject constructor(
+    private val repository: MeteoRepository
 ) : ViewModel() {
 
-    // Dočasně přes singleton. V lekci 12 sem Hilt vloží repository konstruktorem.
-    private val repository: MeteoRepository = Repozitare.meteo
-
-    private val _uiState = MutableStateFlow(
-        MestaUiState(
-            mesta = MestaZdroj.mesta.value.map { mesto -> MestoSPocasim(mesto) },
-            vybraneMestoId = savedStateHandle.get<Int>(KLIC_VYBRANE_MESTO)
-        )
+    /** Stav, který nepatří do databáze: probíhá obnova? jaká je chyba? */
+    private data class StavAkce(
+        val nacitaSe: Boolean = false,
+        val chyba: DuvodSelhani? = null
     )
-    val uiState: StateFlow<MestaUiState> = _uiState.asStateFlow()
+
+    private val stavAkce = MutableStateFlow(StavAkce())
+
+    val uiState: StateFlow<MestaUiState> = combine(
+        repository.sledujMesta(),     // z Roomu
+        stavAkce                      // z paměti
+    ) { mesta, akce ->
+        MestaUiState(mesta = mesta, nacitaSe = akce.nacitaSe, chyba = akce.chyba)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = MestaUiState(nacitaSe = true)
+    )
 
     init {
         obnov()
     }
 
-    fun vyberMesto(id: Int) {
-        savedStateHandle[KLIC_VYBRANE_MESTO] = id
-        _uiState.update { it.copy(vybraneMestoId = id) }
-    }
-
-    fun obnov(vynutit: Boolean = false) {
+    fun obnov() {
         viewModelScope.launch {
-            _uiState.update { it.copy(nacitaSe = true, chyba = null) }
-            try {
-                var prvniChyba: DuvodSelhani? = null
-                val doplnena = _uiState.value.mesta.map { radek ->
-                    when (val vysledek = repository.aktualniPocasi(radek.mesto, vynutit)) {
-                        is VysledekSite.Uspech -> radek.copy(pocasi = vysledek.data)
-                        is VysledekSite.Selhani -> {
-                            if (prvniChyba == null) prvniChyba = vysledek.duvod
-                            radek       // ponecháme, co už bylo načtené
-                        }
-                    }
-                }
-                _uiState.update { it.copy(mesta = doplnena, chyba = prvniChyba) }
-            } finally {
-                _uiState.update { it.copy(nacitaSe = false) }   // i při zrušení korutiny
-            }
+            stavAkce.update { it.copy(nacitaSe = true, chyba = null) }
+            val chyba = repository.obnovPocasi()      // vrací jen důvod selhání, ne data
+            stavAkce.update { it.copy(nacitaSe = false, chyba = chyba) }
         }
     }
 }

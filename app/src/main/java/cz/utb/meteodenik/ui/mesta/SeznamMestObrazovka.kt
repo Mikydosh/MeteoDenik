@@ -12,8 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import cz.utb.meteodenik.R
 
 // Stavová obálka: jediná funkce, která zná ViewModel.
@@ -21,7 +21,7 @@ import cz.utb.meteodenik.R
 @Composable
 fun SeznamMestObrazovka(
     onMestoKliknuto: (Int) -> Unit,
-    viewModel: MestaViewModel = viewModel()
+    viewModel: MestaViewModel = hiltViewModel()
 ) {
     val stav by viewModel.uiState.collectAsStateWithLifecycle()
     Scaffold(
@@ -33,8 +33,7 @@ fun SeznamMestObrazovka(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 actions = {
-                    // Gesto uživatele = vynucená obnova, cache Repository se obejde.
-                    TextButton(onClick = { viewModel.obnov(vynutit = true) }) {
+                    TextButton(onClick = { viewModel.obnov() }) {
                         Text(stringResource(R.string.akce_obnovit))
                     }
                 }
@@ -43,11 +42,8 @@ fun SeznamMestObrazovka(
     ) { insety ->
         SeznamMestObsah(
             stav = stav,
-            onZkusitZnovu = { viewModel.obnov(vynutit = true) },
-            onMestoKliknuto = { id ->
-                viewModel.vyberMesto(id)
-                onMestoKliknuto(id)
-            },
+            onZkusitZnovu = { viewModel.obnov() },
+            onMestoKliknuto = onMestoKliknuto,
             modifier = Modifier.padding(insety)
         )
     }

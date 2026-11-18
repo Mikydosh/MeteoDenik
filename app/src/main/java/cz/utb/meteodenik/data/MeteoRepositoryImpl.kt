@@ -1,45 +1,40 @@
 package cz.utb.meteodenik.data
 
+import cz.utb.meteodenik.data.local.MestoDao
+import cz.utb.meteodenik.data.local.doDomeny
+import cz.utb.meteodenik.data.local.naEntitu
 import cz.utb.meteodenik.data.remote.MeteoApi
-import cz.utb.meteodenik.data.remote.Sit
 import cz.utb.meteodenik.data.remote.toDomain
-import cz.utb.meteodenik.model.Mesto
-import cz.utb.meteodenik.model.MeteoZaznam
-import java.util.concurrent.ConcurrentHashMap
+import cz.utb.meteodenik.model.MestoSPocasim
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class MeteoRepositoryImpl(
-    private val meteoApi: MeteoApi = Sit.meteoApi
+@Singleton
+class MeteoRepositoryImpl @Inject constructor(
+    private val dao: MestoDao,
+    private val meteoApi: MeteoApi
 ) : MeteoRepository {
 
-    private data class ZaznamVCache(val zaznam: MeteoZaznam, val stazenoV: Long)
+    override fun sledujMesta(): Flow<List<MestoSPocasim>> =
+        dao.sledujMestaSMerenimi().map { radky -> radky.map { it.doDomeny() } }
 
-    private val cache = ConcurrentHashMap<Int, ZaznamVCache>()
-
-    override suspend fun aktualniPocasi(
-        mesto: Mesto,
-        vynutitObnovu: Boolean
-    ): VysledekSite<MeteoZaznam> {
-        val ulozene = cache[mesto.id]
-        val jeSvezi = ulozene != null &&
-                System.currentTimeMillis() - ulozene.stazenoV < PLATNOST_CACHE_MS
-        if (!vynutitObnovu && ulozene != null && jeSvezi) {
-            return VysledekSite.Uspech(ulozene.zaznam)
+    override suspend fun obnovPocasi(): DuvodSelhani? {
+        var prvniChyba: DuvodSelhani? = null
+        for (mesto in dao.nactiMesta()) {
+            // toDomain() zůstává UVNITŘ bezpecneVolani, aby se chytila i chyba parsování
+            val vysledek = bezpecneVolani {
+                meteoApi.aktualniPocasi(sirka = mesto.sirka, delka = mesto.delka).toDomain()
+            }
+            when (vysledek) {
+                is VysledekSite.Uspech ->
+                    // Jediný zápis do zdroje pravdy, UI se o něm dozví přes Flow.
+                    dao.ulozZaznam(vysledek.data.naEntitu(mesto.id))
+                is VysledekSite.Selhani ->
+                    if (prvniChyba == null) prvniChyba = vysledek.duvod
+            }
         }
-        val vysledek = bezpecneVolani {
-            meteoApi.aktualniPocasi(sirka = mesto.sirka, delka = mesto.delka).toDomain()
-        }
-        if (vysledek is VysledekSite.Uspech) {
-            cache[mesto.id] = ZaznamVCache(vysledek.data, System.currentTimeMillis())
-        }
-        return vysledek
+        return prvniChyba
     }
-
-    private companion object {
-        const val PLATNOST_CACHE_MS = 10 * 60 * 1000L   // 10 minut
-    }
-}
-
-/** Dočasné místo, odkud si ViewModely berou Repository. V lekci 12 to udělá Hilt. */
-object Repozitare {
-    val meteo: MeteoRepository by lazy { MeteoRepositoryImpl() }
 }

@@ -62,7 +62,6 @@ fun SeznamMestObsah(
             items(stav.mesta, key = { it.mesto.id }) { radek ->
                 MestoKarta(
                     radek = radek,
-                    vybrane = radek.mesto.id == stav.vybraneMestoId,
                     modifier = Modifier.clickable { onMestoKliknuto(radek.mesto.id) }
                 )
             }
