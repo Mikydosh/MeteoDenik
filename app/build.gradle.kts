@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -44,6 +47,11 @@ kotlin {                                               // MIMO android { }, pře
     }
 }
 
+
+room { schemaDirectory("$projectDir/schemas") }   // JSON se schématem databáze, patří do Gitu
+ksp { arg("room.generateKotlin", "true") }        // Room generuje Kotlin
+
+
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
@@ -70,4 +78,9 @@ dependencies {
     implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)                    // ksp(), NE implementation()
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)                     // ksp(), NE implementation()
+    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
 }
