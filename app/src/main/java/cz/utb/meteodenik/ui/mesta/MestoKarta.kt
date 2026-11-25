@@ -1,6 +1,5 @@
 package cz.utb.meteodenik.ui.mesta
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,17 +24,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cz.utb.meteodenik.R
 import cz.utb.meteodenik.ui.popis
+import cz.utb.meteodenik.model.MestoSPocasim
 
 @Composable
 fun MestoKarta(
     radek: MestoSPocasim,
-    vybrane: Boolean,
     modifier: Modifier = Modifier
 ) {
     val mesto = radek.mesto
     Card(
         modifier = modifier.fillMaxWidth(),
-        border = if (vybrane) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null
     ) {
         Row(
             modifier = Modifier.padding(16.dp),

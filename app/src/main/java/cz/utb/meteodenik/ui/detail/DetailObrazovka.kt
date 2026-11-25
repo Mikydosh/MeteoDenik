@@ -19,6 +19,7 @@ import cz.utb.meteodenik.R
 import cz.utb.meteodenik.ui.popis
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 private val FORMAT_CASU: DateTimeFormatter =
     DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
@@ -26,7 +27,7 @@ private val FORMAT_CASU: DateTimeFormatter =
 @Composable
 fun DetailObrazovka(
     onZpet: () -> Unit,
-    viewModel: DetailViewModel = viewModel()
+    viewModel: DetailViewModel = hiltViewModel()
 ) {
     val stav by viewModel.uiState.collectAsStateWithLifecycle()
     val mesto = stav.mesto

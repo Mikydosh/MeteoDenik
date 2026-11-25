@@ -26,6 +26,7 @@ import cz.utb.meteodenik.model.MeteoZaznam
 import cz.utb.meteodenik.model.StavPocasi
 import cz.utb.meteodenik.ui.theme.MeteoDenikTheme
 import java.time.LocalDateTime
+import cz.utb.meteodenik.model.MestoSPocasim
 
 @Composable
 fun SeznamMestObsah(
@@ -61,7 +62,6 @@ fun SeznamMestObsah(
             items(stav.mesta, key = { it.mesto.id }) { radek ->
                 MestoKarta(
                     radek = radek,
-                    vybrane = radek.mesto.id == stav.vybraneMestoId,
                     modifier = Modifier.clickable { onMestoKliknuto(radek.mesto.id) }
                 )
             }

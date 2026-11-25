@@ -1,0 +1,138 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "5b53e6b0a883c6b12afcb558bbf1fc31",
+    "entities": [
+      {
+        "tableName": "mesta",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nazev` TEXT NOT NULL, `zem_sirka` REAL NOT NULL, `zem_delka` REAL NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nazev",
+            "columnName": "nazev",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sirka",
+            "columnName": "zem_sirka",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "delka",
+            "columnName": "zem_delka",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_mesta_nazev",
+            "unique": true,
+            "columnNames": [
+              "nazev"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_mesta_nazev` ON `${TABLE_NAME}` (`nazev`)"
+          }
+        ]
+      },
+      {
+        "tableName": "zaznamy",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mesto_id` INTEGER NOT NULL, `zmereno_v` TEXT NOT NULL, `teplota_c` REAL NOT NULL, `vlhkost_procent` INTEGER NOT NULL, `vitr_kmh` REAL NOT NULL, `kod_stavu` TEXT NOT NULL, FOREIGN KEY(`mesto_id`) REFERENCES `mesta`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mestoId",
+            "columnName": "mesto_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zmerenoV",
+            "columnName": "zmereno_v",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "teplotaC",
+            "columnName": "teplota_c",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vlhkostProcent",
+            "columnName": "vlhkost_procent",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rychlostVetruKmH",
+            "columnName": "vitr_kmh",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kodStavu",
+            "columnName": "kod_stavu",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_zaznamy_mesto_id",
+            "unique": false,
+            "columnNames": [
+              "mesto_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_zaznamy_mesto_id` ON `${TABLE_NAME}` (`mesto_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "mesta",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "mesto_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5b53e6b0a883c6b12afcb558bbf1fc31')"
+    ]
+  }
+}
