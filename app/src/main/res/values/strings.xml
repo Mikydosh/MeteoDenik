@@ -19,4 +19,23 @@
     <string name="teplota_chybi">Teplota není k dispozici</string>
 
     <string name="poslat_zpravu">Zapsat záznam</string>
+
+    <string name="poloha_titulek">Počasí v místě, kde jste</string>
+    <string name="poloha_zjistit">Zjistit polohu</string>
+    <string name="poloha_vysvetleni">Podle přibližné polohy vám automaticky nastavíme město pro zápis počasí.</string>
+    <string name="poloha_pokracovat">Pokračovat</string>
+    <string name="poloha_povolena">Poloha je povolena</string>
+    <string name="poloha_souradnice">Jste na %1$.4f, %2$.4f</string>
+    <string name="poloha_neznama">Polohu zatím nemáme. Zkuste to za chvíli nebo vyberte město ručně.</string>
+    <string name="poloha_bez_opravneni">Systém se už nezeptá. Bez oprávnění k poloze funguje vše ostatní, město jen vyberete ručně. Polohu můžete povolit v Nastavení.</string>
+    <string name="otevrit_nastaveni">Otevřít nastavení</string>
+
+    <string name="seznam_titulek_pocet">Moje města — %1$s</string>
+    <plurals name="pocet_zaznamu">
+        <item quantity="one">%1$d záznam</item>
+        <item quantity="few">%1$d záznamy</item>
+        <item quantity="many">%1$d záznamu</item>
+        <item quantity="other">%1$d záznamů</item>
+    </plurals>
+    <string name="detail_souhrn">%1$s má právě %2$.1f °C</string>
 </resources>
