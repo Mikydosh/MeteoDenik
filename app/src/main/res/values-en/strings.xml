@@ -36,4 +36,24 @@
         <item quantity="other">%1$d records</item>
     </plurals>
     <string name="detail_souhrn">%1$s is currently %2$.1f °C</string>
+
+    <string name="mesta_titulek">My cities</string>
+    <string name="mesta_prazdno">No cities yet. Add the first one.</string>
+    <string name="mesto_pole_label">City name</string>
+    <string name="mesto_pridat">Add</string>
+    <string name="mesto_teplota">%1$.1f °C</string>
+    <string name="mesto_teplota_neznama">Temperature not known yet</string>
+    <string name="mesto_avatar_popis">City badge</string>
+
+    <string name="vizitka_avatar_popis">Avatar: %1$s</string>
+    <string name="vizitka_email_popis">Email: %1$s</string>
+
+    <string name="mesto_duplikat">This city is already in the list.</string>
+    <string name="mesto_smazat_popis">Delete city %1$s</string>
+    <plurals name="mesta_pocet">
+        <item quantity="one">%1$d city</item>
+        <item quantity="other">%1$d cities</item>
+    </plurals>
+    <string name="mesto_smazat">Delete</string>
+    <string name="mesto_teplota_pozdeji">We will add the temperature in lesson 11</string>
 </resources>
