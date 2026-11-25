@@ -1,7 +1,9 @@
-package cz.utb.meteodenik.ui
+package cz.utb.meteodenik.ui.mesta
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,10 +19,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -30,35 +36,35 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cz.utb.meteodenik.R
 import cz.utb.meteodenik.model.Mesto
 import cz.utb.meteodenik.ui.theme.MeteoDenikTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.ui.res.pluralStringResource
-
 
 @Composable
 fun MestoKarta(
     mesto: Mesto,
     onSmazat: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    vybrane: Boolean = false
 ) {
-    Card(modifier = modifier.fillMaxWidth()) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        border = if (vybrane) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null
+    ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -112,7 +118,6 @@ internal val ukazkovaMesta = listOf(
     Mesto(id = 3, nazev = "Uherské Hradiště", teplotaC = null)
 )
 
-
 @Composable
 fun PridatMestoRadek(
     nazev: String,
@@ -147,10 +152,11 @@ fun PridatMestoRadek(
     }
 }
 
-
 @Composable
 fun MestaSeznam(
     mesta: List<Mesto>,
+    vybraneMestoId: Int?,
+    onMestoKliknuto: (Int) -> Unit,
     onSmazatMesto: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -173,24 +179,48 @@ fun MestaSeznam(
             ) { mesto ->
                 MestoKarta(
                     mesto = mesto,
-                    onSmazat = { onSmazatMesto(mesto.id) }
+                    onSmazat = { onSmazatMesto(mesto.id) },
+                    vybrane = mesto.id == vybraneMestoId,
+                    modifier = Modifier.clickable { onMestoKliknuto(mesto.id) }
                 )
             }
         }
     }
 }
 
+// Stavová obálka: jediná funkce, která zná ViewModel.
+@Composable
+fun SeznamMestObrazovka(
+    onMestoKliknuto: (Int) -> Unit,
+    viewModel: MestaViewModel = viewModel()
+) {
+    val stav by viewModel.uiState.collectAsStateWithLifecycle()
+    SeznamMestObsah(
+        stav = stav,
+        onMestoKliknuto = { id ->
+            viewModel.vyberMesto(id)   // výběr do SavedStateHandle
+            onMestoKliknuto(id)        // o navigaci rozhodne NavHost
+        },
+        onPridejMesto = viewModel::pridejMesto,
+        onSmazatMesto = viewModel::smazMesto,
+        onNazevZmenen = viewModel::zrusChybu
+    )
+}
+
+// Bezstavový obsah: dostane hotový stav a lambdy, ViewModel nezná.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MestaObsah(
-    mesta: List<Mesto>,
-    novyNazev: String,
-    jeDuplikat: Boolean,
-    onNovyNazevChange: (String) -> Unit,
-    onPridatMesto: () -> Unit,
+private fun SeznamMestObsah(
+    stav: MestaUiState,
+    onMestoKliknuto: (Int) -> Unit,
+    onPridejMesto: (String) -> Boolean,
     onSmazatMesto: (Int) -> Unit,
+    onNazevZmenen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Rozepsaný text je stav jednoho pole a žádná logika ho nehlídá, proto je v UI, ne ve ViewModelu.
+    var rozepsanyNazev by rememberSaveable { mutableStateOf("") }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -210,54 +240,30 @@ fun MestaObsah(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
             PridatMestoRadek(
-                nazev = novyNazev,
-                jeChyba = jeDuplikat,
-                onNazevChange = onNovyNazevChange,
-                onPridat = onPridatMesto
+                nazev = rozepsanyNazev,
+                jeChyba = stav.jeDuplikat,
+                onNazevChange = {
+                    rozepsanyNazev = it
+                    onNazevZmenen()
+                },
+                onPridat = {
+                    if (onPridejMesto(rozepsanyNazev)) rozepsanyNazev = ""
+                }
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             Text(
-                text = pluralStringResource(R.plurals.mesta_pocet, mesta.size, mesta.size),
+                text = pluralStringResource(R.plurals.mesta_pocet, stav.mesta.size, stav.mesta.size),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            MestaSeznam(mesta = mesta, onSmazatMesto = onSmazatMesto)
+            MestaSeznam(
+                mesta = stav.mesta,
+                vybraneMestoId = stav.vybraneMestoId,
+                onMestoKliknuto = onMestoKliknuto,
+                onSmazatMesto = onSmazatMesto
+            )
         }
     }
-}
-
-@Composable
-fun MestaObrazovka(modifier: Modifier = Modifier) {
-    var novyNazev by rememberSaveable { mutableStateOf("") }
-    var jeDuplikat by rememberSaveable { mutableStateOf(false) }
-    var mesta by remember { mutableStateOf(ukazkovaMesta) }
-    MestaObsah(
-        mesta = mesta,
-        novyNazev = novyNazev,
-        jeDuplikat = jeDuplikat,
-        onNovyNazevChange = {
-            novyNazev = it
-            jeDuplikat = false          // chyba je stav; vypne se ve chvíli, kdy uživatel začne psát
-        },
-        onPridatMesto = {
-            val nazev = novyNazev.trim()
-            if (nazev.isNotEmpty()) {
-                val uzExistuje = mesta.any { it.nazev.trim().equals(nazev, ignoreCase = true) }
-                if (uzExistuje) {
-                    jeDuplikat = true
-                } else {
-                    mesta = mesta + Mesto(
-                        id = (mesta.maxOfOrNull { it.id } ?: 0) + 1,
-                        nazev = nazev,
-                        teplotaC = null
-                    )
-                    novyNazev = ""
-                }
-            }
-        },
-        onSmazatMesto = { id -> mesta = mesta.filterNot { it.id == id } },   // nový seznam, ne remove()
-        modifier = modifier
-    )
 }
 
 @Preview(name = "Karta — světlá", showBackground = true)
@@ -288,45 +294,42 @@ private fun PridatMestoRadekPreview() {
 @Preview(name = "Obrazovka — světlá", showBackground = true)
 @Preview(name = "Obrazovka — tmavá", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun MestaObsahPreview() {
+private fun SeznamMestObsahPreview() {
     MeteoDenikTheme {
-        MestaObsah(
-            mesta = ukazkovaMesta,
-            novyNazev = "Otrokovice",
-            jeDuplikat = false,
-            onNovyNazevChange = {},
-            onPridatMesto = {},
-            onSmazatMesto = {}
+        SeznamMestObsah(
+            stav = MestaUiState(mesta = ukazkovaMesta, vybraneMestoId = 2),
+            onMestoKliknuto = {},
+            onPridejMesto = { true },
+            onSmazatMesto = {},
+            onNazevZmenen = {}
         )
     }
 }
 
 @Preview(name = "Obrazovka — prázdný seznam", showBackground = true)
 @Composable
-private fun MestaObsahPrazdnaPreview() {
+private fun SeznamMestObsahPrazdnyPreview() {
     MeteoDenikTheme {
-        MestaObsah(
-            mesta = emptyList(),
-            novyNazev = "",
-            jeDuplikat = false,
-            onNovyNazevChange = {},
-            onPridatMesto = {},
-            onSmazatMesto = {}
+        SeznamMestObsah(
+            stav = MestaUiState(),
+            onMestoKliknuto = {},
+            onPridejMesto = { true },
+            onSmazatMesto = {},
+            onNazevZmenen = {}
         )
     }
 }
 
 @Preview(name = "Obrazovka — chyba duplikátu", showBackground = true)
 @Composable
-private fun MestaObsahChybaPreview() {
+private fun SeznamMestObsahChybaPreview() {
     MeteoDenikTheme {
-        MestaObsah(
-            mesta = ukazkovaMesta,
-            novyNazev = "Zlín",
-            jeDuplikat = true,
-            onNovyNazevChange = {},
-            onPridatMesto = {},
-            onSmazatMesto = {}
+        SeznamMestObsah(
+            stav = MestaUiState(mesta = ukazkovaMesta, jeDuplikat = true),
+            onMestoKliknuto = {},
+            onPridejMesto = { true },
+            onSmazatMesto = {},
+            onNazevZmenen = {}
         )
     }
 }
