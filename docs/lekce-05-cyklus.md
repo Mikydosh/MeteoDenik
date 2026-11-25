@@ -1,0 +1,13 @@
+# Lekce 05 – tabulka životního cyklu
+
+
+Měřeno na emulátoru, aplikace `cz.utb.meteodenik`, Logcat s filtrem `tag:Cyklus`. Zapsaná je jen `MainActivity`.
+
+| Scénář | Můj předpoklad | Skutečnost z Logcatu | Proč se to liší |
+|---|---|---|---|
+| 1. Start aplikace z ikony | `onCreate -> onStart -> onResume` | `PROCESS STARTED (10572)`, pak `onCreate (savedInstanceState = null) -> onStart -> onResume` | Android aplikace nemá `main()`. Nový proces i aktivitu vytvoří systém a volá callbacky za sebou. `savedInstanceState` je null, protože jde o první vytvoření a není co obnovovat. |
+| 2. Rotace displeje | `onPause -> onStop -> onDestroy -> onCreate -> onStart -> onResume` | `onPause -> onStop -> onDestroy (isFinishing = false) -> onCreate (savedInstanceState = Bundle[…], tedy není null) -> onStart -> onResume` | Otočení je změna konfigurace. Systém aktivitu zničí a postaví novou, aby se mohla znovu vykreslit pro nové rozměry. `isFinishing = false`, protože nejde o konec aplikace, jen o restart. Před zničením systém uložil stav (hierarchie view, stav Compose, SavedStateRegistry) do `Bundle`, který nová instance dostane v `onCreate`. |
+| 3. Stisk Home | `onPause -> onStop` | `onPause -> onStop` | Aplikace zmizí z obrazovky, ale uživatel se může vrátit, takže ji systém jen zastaví a nechá v paměti. `onDestroy` proto nepřijde. |
+| 4. Návrat do aplikace | `onRestart -> onStart` | `onRestart -> onStart -> onResume` | Instance přežila (nebyla zničena), takže se nevolá `onCreate`. Zastavená aktivita se jen znovu spustí: `onRestart` je volán právě po `onStop`. |
+| 5. Stisk Zpět na MainActivity | `onPause -> onStop` | `onPause -> onStop` (bez `onDestroy`) | Od Androidu 12 tlačítko Zpět na kořenové aktivitě aplikace neukončí, jen ji přesune na pozadí. Chová se tedy jako Home. Starší Android by zavolal `onDestroy (isFinishing = true)`. |
+| 6. adb shell am kill na pozadí + návrat | Předem nezapsáno, postupoval jsem jen podle  tutoriálu | `PROCESS ENDED (10572)`, pak `PROCESS STARTED (10744)` (nový proces, jiný PID) a `onCreate (savedInstanceState = Bundle[…], tedy není null) -> onStart -> onResume`. Před koncem starého procesu žádný `onDestroy` (viz Logcat). | Příkaz zabil celý proces, takže se `onDestroy` staré instance nemohl zavolat: kód už neběžel. Systém ale `Bundle` uložil už při odchodu na pozadí (po `onStop`), proto nový proces dostal neprázdný `savedInstanceState` a obnovil obrazovku. Co bylo jen ve vlastnostech staré instance (proměnné v paměti), je pryč. Proto se data nesmí spoléhat na `onDestroy`. |
